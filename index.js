@@ -26,9 +26,9 @@ app.get('/', (req, res, next) => {
         return;
     }
 
-    data = req.pipe(request(url))
-    res.header('X-Final-URL', data.uri.href);
-    data.pipe(res);
+  req.pipe(request.get(url).on('response', function(response) {
+	  res.header('X-Final-URL', response.request.uri.href);
+  })).pipe(res);
 });
 
 module.exports = app;
