@@ -26,7 +26,7 @@ app.get('/', cors(), (req, res, next) => {
   }
   
   data = req.pipe(request(url)) // Get data
-  res.header('X-Finel-URL', data.uri.href);
+  res.header('X-Final-URL', data.uri.href);
   data.pipe(res); // Reply
 });
 
