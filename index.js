@@ -3,7 +3,7 @@ const request = require('request');
 const cors = require('cors')
 const app = express();  
 
-app.use(function(req, res, next) {
+app.use(function(req, res, next) { // Cache
     res.header('Cache-Control', 'public, smax-age=600, max-age=600');
     next();
 });
@@ -16,18 +16,18 @@ function isURL(str) {
 
 app.get('/', cors(), (req, res, next) => {
   url = req.query.url;
-  if(!url){
+  if(!url){ // If no URL specified
 	  res.send("Hello World");
 	  return
   }
-  if(!isURL(url)){
+  if(!isURL(url)){ // If URL is not valid
 	  res.send("ERROR: URL NOT VALID")
 	  return;
   }
   
-  data = req.pipe(request(url))
+  data = req.pipe(request(url)) // Get data
   res.header('X-Finel-URL', data.uri.href);
-  data.pipe(res);
+  data.pipe(res); // Reply
 });
 
 module.exports = app;
