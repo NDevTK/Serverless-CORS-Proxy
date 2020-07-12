@@ -32,8 +32,8 @@ app.get('/', (req, res, next) => {
     req.pipe(request.get({
       url: url,
       gzip: true,
-      timeout: 1000, // Timeout for Remote Request
-    }, (err, headers, body) => {
+		  timeout: 1000, // Timeout for Remote Request
+		}, (err, headers, body) => {
       res.send(body.match(RegExp(req.query.a, "g")));
     }).on('response', function(response) {
       res.header('X-Final-URL', response.request.uri.href);
@@ -46,7 +46,7 @@ app.get('/', (req, res, next) => {
       url: url,
       timeout: 1000, // Timeout for Remote Request
       gzip: true
-    }).on('response', function(response) {
+		}).on('response', function(response) {
       res.header('X-Final-URL', response.request.uri.href);
     }).on('error', function(err) {
       res.status(504).send("REMOTE ERROR");
@@ -57,8 +57,8 @@ app.get('/', (req, res, next) => {
     // Send directly
     req.pipe(request.get({
       url: url,
-      timeout: 1000, // Timeout for Remote Request
-    }).on('response', function(response) {
+		  timeout: 1000, // Timeout for Remote Request
+		}).on('response', function(response) {
       res.header('X-Final-URL', response.request.uri.href);
     }).on('error', function(err) {
       res.status(504).send("REMOTE ERROR");
@@ -67,18 +67,17 @@ app.get('/', (req, res, next) => {
 });
 
 app.get('/board', (req, res, next) => {
-  // Get youtube story board for video id
   const storyboard = /https:\\\/\\\/i9\.ytimg\.com\\\/sb\\\/[A-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9A-z+=_-]*)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/;
   const videoid = /[A-z0-9_-]{11}/;
 
   var id = encodeURI(req.query.v);
 
   if(!id){ // If no ID specified 
-	  return res.send("Need video id!");
+	  return res.status(400).send("Need video id!");
   }
 
   if(!videoid.test(id)) {
-    return res.send("Invalid video id!");
+    return res.status(400).send("Invalid video id!");
   }
   
   request.get({
@@ -87,6 +86,7 @@ app.get('/board', (req, res, next) => {
     timeout: 1000, // Timeout for Remote Request
   }, (err, headers, body) => {
     var matchs = body.match(storyboard);
+    if(matchs === null) return res.status(404).send("Board not found.");
     var url = ("https://i9.ytimg.com/sb/"+id+"/storyboard3_L1/M0.jpg?sqp="+matchs[1]+"&sigh=rs%24"+matchs[2]).replace(/(\r\n|\n|\r)/gm, "");
     res.send(url);
   }).on('response', function(response) {
