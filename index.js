@@ -76,7 +76,7 @@ app.get('/board', (req, res, next) => {
 	  return res.status(400).send("Need video id!");
   }
 
-  if(!videoid.test(id)) {
+  if(!videoid.test(id) || id.length !== 11) {
     return res.status(400).send("Invalid video id!");
   }
   
