@@ -25,5 +25,5 @@ https://cors.usercontent.ndev.tk/board/?v=VideoID
 # Get Youtube video hover image
 https://cors.usercontent.ndev.tk/board/hover/?v=VideoID
 
-# Get top 5000 channels YouTube by views
+# Get top 5000 YouTube channels by views
 https://cors.usercontent.ndev.tk/channels
