@@ -1,9 +1,12 @@
 const express = require('express');  
 const request = require('request');
-const CloudflareBypasser = require('cloudflare-bypasser');
+const cloudscraper = require('cloudscraper');
+const fetch = require('node-fetch');
 const replaceStream = require('replacestream');
+
 const chrome = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
+
 const app = express();
 
 app.use(function(req, res, next) {
@@ -46,7 +49,8 @@ async function renderPage(url) {
     }
   });
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
-  await page.goto(url, {waitUntil: 'networkidle2'});
+  await page.goto(url);
+  await page.waitFor('*');
   html = await page.content();
   await browser.close();
   return html
@@ -58,7 +62,7 @@ function isURL(str) {
   return pattern.test(str);
 }
 
-app.get('/', async (req, res, next) => {
+app.all('/', async (req, res, next) => {
   var url = req.query.url;
   var regex = (req.query.a) ? RegExp(req.query.a, "g") : null;
 
@@ -72,8 +76,7 @@ app.get('/', async (req, res, next) => {
   
   if(req.query.cf && !req.query.js) {
     // Cloudflare support
-    let cf = new CloudflareBypasser();
-    let result = await cf.request({
+    let result = await cloudscraper.get({
       url: url,
       gzip: true,
       followAllRedirects: true
@@ -127,7 +130,7 @@ app.get('/', async (req, res, next) => {
   }
 });
 
-app.get('/board', (req, res, next) => {
+app.all('/board', (req, res, next) => {
   const storyboard = /https:\\\/\\\/i9\.ytimg\.com\\\/sb\\\/[a-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9a-z+=_-]+)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/i;
   const videoid = /[a-z0-9_-]{11}/i;
 
@@ -157,8 +160,7 @@ app.get('/board', (req, res, next) => {
   });
 });
 
-
-app.get('/board/hover', async (req, res, next) => {
+app.all('/board/hover', async (req, res, next) => {
   const videoid = /[a-z0-9_-]{11}/i;
 
   var id = encodeURI(req.query.v);
@@ -180,14 +182,50 @@ app.get('/board/hover', async (req, res, next) => {
   res.send(url);
 });
 
+app.all('/board/all', async (req, res, next) => {
+  const storyboard = /https:\\\/\\\/i9\.ytimg\.com\\\/sb\\\/[a-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9a-z+=_-]+)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/i;
+  const storyboard2 = /"https:\/\/i\.ytimg\.com\/an_webp\/[0-9a-z+=_-]{11}\/mqdefault_6s\.webp\?du=3000\\u0026sqp=([0-9a-z+=_-]*)\\u0026rs=([0-9a-z+=_-]*)"/i;
+  var output = [];
+  const videoid = /[a-z0-9_-]{11}/i;
+
+  var id = encodeURI(req.query.v);
+
+  if(!id){ // If no ID specified 
+	  return res.status(400).send("Need video id!");
+  }
+
+  if(!videoid.test(id) || id.length !== 11) {
+    return res.status(400).send("Invalid video id!");
+  }
+  
+  var body;
+  var matchs;
+  var url;
+
+  body = await renderPage("https://www.youtube.com/results?search_query="+id+"&sp=EgIQAQ%253D%253D");
+  if(body === null) return res.status(400).send("ERROR");
+  matchs = body.match(storyboard2);
+  if(matchs === null) return res.status(404).send("Board not found.");
+  url = ("https://i.ytimg.com/an_webp/"+id+"/mqdefault_6s.webp?du=3000&sqp="+matchs[1]+"&rs="+matchs[2]);
+  output.push(url);
+
+  body = await renderPage("https://www.youtube.com/watch?v="+id);
+  if(body === null) return res.status(400).send("ERROR");
+  matchs = body.match(storyboard);
+  if(matchs === null) return res.status(404).send("Board not found.");
+  url = ("https://i9.ytimg.com/sb/"+id+"/storyboard3_L1/M0.jpg?sqp="+matchs[1]+"&sigh=rs%24"+matchs[2]);
+  output.push(url);
+
+  res.send(output);
+});
+
 function cleanResult(result) {
-  return result.substring(11, result.length - 2);
+  return result.substring(9, result.length - 2);
 }
 
-app.get('/channels', async (req, res, next) => {
+app.all('/channels', async (req, res, next) => {
   const channel = /\/youtube\/[c|channel]\/[a-z0-9-_]*">/gi;
-  let cf = new CloudflareBypasser();
-  let result = await cf.request("https://socialblade.com/youtube/top/5000/mostviewed");
+  let result = await cloudscraper.get("https://socialblade.com/youtube/top/5000/mostviewed");
   if(result.statusCode !== 200) return res.status(504).send("REMOTE ERROR");
   let matchs = result.body.match(channel);
   if(matchs === null) return res.status(404).send("Channels not found.");
