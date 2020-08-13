@@ -1,7 +1,6 @@
 {
   "name": "corsproxy",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "engines": {
     "node": "12.x"
@@ -12,7 +11,11 @@
   "author": "NDev",
   "license": "MIT",
   "dependencies": {
+    "chrome-aws-lambda": "^3.1.1",
+    "cloudscraper": "^4.6.0",
     "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "puppeteer-core": "^3.1.0",
     "replacestream": "^4.0.3",
     "request": "^2.88.2"
   }
