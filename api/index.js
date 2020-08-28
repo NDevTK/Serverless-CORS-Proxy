@@ -131,7 +131,7 @@ app.all('/', async (req, res, next) => {
 });
 
 app.all('/board', (req, res, next) => {
-  const storyboard = /https:\\\/\\\/i9\.ytimg\.com\\\/sb\\\/[a-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9a-z+=_-]+)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/i;
+  const storyboard = /https:\\\/\\\/i\.ytimg\.com\\\/sb\\\/[a-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9a-z+=_-]+)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/i;
   const videoid = /[a-z0-9_-]{11}/i;
 
   var id = encodeURI(req.query.v);
@@ -151,7 +151,7 @@ app.all('/board', (req, res, next) => {
   }, (err, headers, body) => {
     var matchs = body.match(storyboard);
     if(matchs === null) return res.status(404).send("Board not found.");
-    var url = ("https://i9.ytimg.com/sb/"+id+"/storyboard3_L1/M0.jpg?sqp="+matchs[1]+"&sigh=rs%24"+matchs[2]);
+    var url = ("https://i.ytimg.com/sb/"+id+"/storyboard3_L1/M0.jpg?sqp="+matchs[1]+"&sigh=rs%24"+matchs[2]);
     res.send(url);
   }).on('response', function(response) {
     res.header('X-Final-URL', response.request.uri.href);
@@ -183,7 +183,7 @@ app.all('/board/hover', async (req, res, next) => {
 });
 
 app.all('/board/all', async (req, res, next) => {
-  const storyboard = /https:\\\/\\\/i9\.ytimg\.com\\\/sb\\\/[a-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9a-z+=_-]+)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/i;
+  const storyboard = /https:\\\/\\\/i\.ytimg\.com\\\/sb\\\/[a-z0-9_-]{11}\\\/storyboard3_L\$L\\\/\$N\.jpg\?sqp=([0-9a-z+=_-]+)\|.*M\$M#rs\$([0-9A-z+=_-]{34})\|/i;
   const storyboard2 = /"https:\/\/i\.ytimg\.com\/an_webp\/[0-9a-z+=_-]{11}\/mqdefault_6s\.webp\?du=3000\\u0026sqp=([0-9a-z+=_-]*)\\u0026rs=([0-9a-z+=_-]*)"/i;
   var output = [];
   const videoid = /[a-z0-9_-]{11}/i;
@@ -213,7 +213,7 @@ app.all('/board/all', async (req, res, next) => {
   if(body === null) return res.status(400).send("ERROR");
   matchs = body.match(storyboard);
   if(matchs === null) return res.status(404).send("Board not found.");
-  url = ("https://i9.ytimg.com/sb/"+id+"/storyboard3_L1/M0.jpg?sqp="+matchs[1]+"&sigh=rs%24"+matchs[2]);
+  url = ("https://i.ytimg.com/sb/"+id+"/storyboard3_L1/M0.jpg?sqp="+matchs[1]+"&sigh=rs%24"+matchs[2]);
   output.push(url);
 
   res.send(output);
