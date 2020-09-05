@@ -219,18 +219,18 @@ app.all('/board/all', async (req, res, next) => {
   res.send(output);
 });
 
-function cleanResult(result, channels) {
+function cleanResult(result) {
   return result.substring(9, result.length - 2);
 }
 
 app.all('/channels', async (req, res, next) => {
   const channel = /\/youtube\/[c|channel]\/[a-z0-9-_]*">/gi;
-  var result = "";
+  var body = "";
   for (var type of ["100", "category/autos", "category/comedy", "category/education", "category/entertainment", "category/games", "category/made-for-kids", "category/music", "category/news", "category/nonprofit", "category/people", "category/animals","category/tech", "category/shows", "category/sports","category/travel"]) {
-     result += await cloudscraper.get("https://socialblade.com/youtube/top/"+type+"/mostviewed");
+     result = await cloudscraper.get("https://socialblade.com/youtube/top/"+type+"/mostviewed");
+	 body += result;
   }
-  if(result.statusCode !== 200) return res.status(504).send("REMOTE ERROR");
-  let matchs = result.body.match(channel);
+  let matchs = body.match(channel);
   if(matchs === null) return res.status(404).send("Channels not found.");
   res.send([...new Set(matchs.map(cleanResult))]);
 });
