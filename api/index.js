@@ -223,10 +223,6 @@ function cleanResult(result) {
   return result.substring(9, result.length - 2);
 }
 
-function cleanResult2(result) {
-  return result.substr(1);
-}
-
 app.all('/channels', async (req, res, next) => {
   const channel = /\/youtube\/[c|channel]\/[a-z0-9-_]*">/gi;
   var body = "";
@@ -243,7 +239,7 @@ app.all('/channels', async (req, res, next) => {
 app.all('/popular', async (req, res, next) => {
   let r = await cloudscraper.get("https://invidio.us/api/v1/popular");
   let matchs = JSON.parse(r);
-  matchs = matchs.map(cleanResult2);
+  matchs = matchs.map(x => x.authorUrl.substr(1));
   if(matchs === null) return res.status(404).send("Channels not found.");
   res.send([...new Set(matchs)]);
 });
