@@ -241,8 +241,7 @@ app.all('/channels', async (req, res, next) => {
 });
 
 app.all('/popular', async (req, res, next) => {
-  let result = await cloudscraper.get("https://invidio.us/api/v1/popular");
-  let matchs = body.match(channel);
+  let matchs = await cloudscraper.get("https://invidio.us/api/v1/popular");
   matchs = matchs.map(cleanResult2);
   if(matchs === null) return res.status(404).send("Channels not found.");
   res.send([...new Set(matchs)]);
