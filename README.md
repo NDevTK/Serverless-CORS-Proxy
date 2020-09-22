@@ -1,6 +1,6 @@
 # Serverless-CORS-Proxy
 A basic Nodejs "Serverless" CORS Proxy  
-
+API unavailable due to abuse.
 
 Example: https://cors.usercontent.ndev.tk/?url=https://example.com   
 The header X-Finel-URL is the current url after the redirects :D  
